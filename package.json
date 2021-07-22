@@ -1,0 +1,32 @@
+{
+  "name": "voice-miner-discord",
+  "version": "1.0.0",
+  "main": "dist/main.js",
+  "author": "Kaoru Chisen <cordx56@cordx.net>",
+  "license": "MIT",
+  "scripts": {
+    "tsc": "tsc",
+    "start": "node .",
+    "format": "prettier --check \"./src/**/*.ts\"",
+    "format:fix": "prettier --write \"./src/**/*.ts\"",
+    "lint": "eslint \"./src/**/*.ts\"",
+    "lint:fix": "eslint --fix \"./src/**/*.ts\"",
+    "fix": "yarn run lint:fix && yarn run format:fix"
+  },
+  "dependencies": {
+    "@discordjs/opus": "^0.5.3",
+    "@google-cloud/speech": "^4.5.5",
+    "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0",
+    "fluent-ffmpeg": "^2.1.2"
+  },
+  "devDependencies": {
+    "@types/fluent-ffmpeg": "^2.1.18",
+    "@types/node": "^16.4.0",
+    "@typescript-eslint/parser": "^4.28.4",
+    "eslint": "^7.31.0",
+    "eslint-config-prettier": "^8.3.0",
+    "prettier": "^2.3.2",
+    "typescript": "^4.3.5"
+  }
+}
