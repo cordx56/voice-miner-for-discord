@@ -3,6 +3,7 @@ import fs from "fs";
 import { Readable } from "stream";
 import Discord from "discord.js";
 import { recognize_from_file } from "./speech";
+import { convertAndUpload } from "./s3";
 
 dotenv.config();
 
@@ -41,14 +42,25 @@ client.on("message", async (message) => {
           audioStream.pipe(audioFileStream);
           audioStream.on("end", async () => {
             try {
-              const [response] = await recognize_from_file(fileName);
-              console.log(response);
-              if (response.results) {
-                for (let result of response.results) {
-                  if (result && result.alternatives && message.member && message.member.voice.channel) {
-                    message.channel.send(
-                      `${message.member.displayName}@${message.member.voice.channel.name}: ${result.alternatives[0].transcript}`,
-                    );
+              if (message.guild) {
+                const [response] = await recognize_from_file(fileName);
+                if (response.results) {
+                  if (0 < response.results.length) {
+                    const s3Key = await convertAndUpload(fileName, message.guild.id);
+                    const s3URL =
+                      process.env.AWS_CLOUDFRONT_BASE_URL + "/" + s3Key;
+                    for (let result of response.results) {
+                      if (
+                        result &&
+                        result.alternatives &&
+                        message.member &&
+                        message.member.voice.channel
+                      ) {
+                        message.channel.send(
+                          `${message.member.displayName}@${message.member.voice.channel.name}: \n> ${result.alternatives[0].transcript}\n${s3URL}`,
+                        );
+                      }
+                    }
                   }
                 }
               }
@@ -67,6 +79,13 @@ client.on("message", async (message) => {
     const connection = voiceConnections.get(message.guild.id);
     if (connection) {
       connection.disconnect();
+      voiceConnections.delete(message.guild.id);
     }
   }
 });
+
+setInterval(() => {
+  voiceConnections.forEach((value, key) => {
+    value.play(new Silence(), { type: "opus" });
+  });
+}, 10000);

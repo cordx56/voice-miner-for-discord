@@ -13,9 +13,9 @@ const config = {
 const ffmpegSync = (fileName: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const newFileName = fileName + ".mono.wav";
-    const command = ffmpeg()
+    ffmpeg()
       .input(fileName)
-      .inputFormat("s16le")
+      .inputFormat("s32le")
       .outputOptions(["-map_channel", "0.0.0", newFileName])
       .save(newFileName)
       .on("end", () => {
@@ -24,21 +24,24 @@ const ffmpegSync = (fileName: string): Promise<string> => {
       .on("error", (err) => {
         reject(new Error(err));
       });
-    console.log(command);
   });
 };
 
-export const recognize_from_file = async (fileName: string) => {
-  const resultFileName = await ffmpegSync(fileName);
-  const mono_data = fs.readFileSync(resultFileName);
+export const recognize_from_b64 = async (b64: string) => {
   const audio = {
-    content: mono_data.toString("base64"),
+    content: b64,
   };
   const request = {
     audio: audio,
     config: config,
   };
   const response = await client.recognize(request);
-  fs.unlinkSync(resultFileName);
+  return response;
+};
+
+export const recognize_from_file = async (fileName: string) => {
+  const newFileName = await ffmpegSync(fileName);
+  const response = await recognize_from_b64(fs.readFileSync(newFileName).toString("base64"));
+  fs.unlinkSync(newFileName);
   return response;
 };

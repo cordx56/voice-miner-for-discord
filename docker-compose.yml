@@ -1,0 +1,5 @@
+version: '3'
+services:
+  discord_bot:
+    build: .
+    env_file: ./.env
