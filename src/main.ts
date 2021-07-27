@@ -57,7 +57,7 @@ client.on("message", async (message) => {
                         message.member.voice.channel
                       ) {
                         message.channel.send(
-                          `${message.member.displayName}@${message.member.voice.channel.name}: \n> ${result.alternatives[0].transcript}\n${s3URL}`,
+                          `${user.username}@${message.member.voice.channel.name}: \n> ${result.alternatives[0].transcript}\n${s3URL}`,
                         );
                       }
                     }
