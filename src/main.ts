@@ -25,10 +25,13 @@ client.on("ready", () => {
   console.log("Ready...");
 });
 
+const start_command = ["議事録取って", "議事録開始", "!start"];
+const stop_command = ["議事録とめて", "議事録終了", "!stop"];
+
 client.on("message", async (message) => {
   if (!message.guild) return;
 
-  if (message.content === "議事録取って" || message.content === "!start") {
+  if (start_command.includes(message.content)) {
     if (message.member && message.member.voice.channel) {
       const connection = await message.member.voice.channel.join();
       connection.play(new Silence(), { type: "opus" });
@@ -75,7 +78,7 @@ client.on("message", async (message) => {
     } else {
       message.reply("ボイスチャンネルに入ってから言ってくださる？");
     }
-  } else if (message.content === "議事録終了" || message.content === "!stop") {
+  } else if (stop_command.includes(message.content)) {
     const connection = voiceConnections.get(message.guild.id);
     if (connection) {
       connection.disconnect();
